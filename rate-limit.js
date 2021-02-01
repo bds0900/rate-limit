@@ -67,7 +67,6 @@ function RateLimit(options){
 
 
 
-        console.log(totalCountWithinWindow)
         if(totalCountWithinWindow>=options.max){
             res.setHeader("X-RateLimit-Limit", options.max)
             return res.status(options.statusCode).send(options.message)
