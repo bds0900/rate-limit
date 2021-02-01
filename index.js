@@ -1,16 +1,23 @@
 const express = require('express')
 const pg = require('pg')
-
+const rateLimit=require('./rate-limit');
 const app = express()
 // configs come from standard PostgreSQL env vars
 // https://www.postgresql.org/docs/9.6/static/libpq-envars.html
 const pool = new pg.Pool()
 
 const queryHandler = (req, res, next) => {
-  pool.query(req.sqlQuery).then((r) => {
+  pool.query(req.sqlQuery)
+  .then((r) => {
     return res.json(r.rows || [])
-  }).catch(next)
+  })
+  .catch(next)
 }
+
+
+const limiter=rateLimit({max:5});
+
+app.use(limiter);
 
 app.get('/', (req, res) => {
   res.send('Welcome to EQ Works 😎')
@@ -69,12 +76,12 @@ app.get('/poi', (req, res, next) => {
   return next()
 }, queryHandler)
 
-app.listen(process.env.PORT || 5555, (err) => {
+app.listen(process.env.PORT || 5000, (err) => {
   if (err) {
     console.error(err)
     process.exit(1)
   } else {
-    console.log(`Running on ${process.env.PORT || 5555}`)
+    console.log(`Running on ${process.env.PORT || 5000}`)
   }
 })
 
